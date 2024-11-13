@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.wzm</groupId>
     <artifactId>dell-fans-management-system</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>dell-fans-management-system</name>
     <description>dell-fans-management-system</description>
     <url/>
@@ -34,6 +34,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -55,6 +59,13 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+
+        <!--shell交互支持 -->
+        <dependency>
+            <groupId>com.github.cverges</groupId>
+            <artifactId>expect4j</artifactId>
+            <version>1.9</version>
         </dependency>
     </dependencies>
 
