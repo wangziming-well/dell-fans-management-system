@@ -17,10 +17,6 @@ class DellFansManagementSystemApplicationTests {
     @Test
     void contextLoads() {
 
-        String s = redfishApi.get();
-        System.out.println(s);
-        String s1 = redfishApi.get();
-        System.out.println(s1);
     }
 
 }

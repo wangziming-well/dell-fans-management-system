@@ -2,7 +2,13 @@ spring:
   application:
     name: dell-fans-management-system
 
+
+
 idrac:
   host: 192.168.2.98
   username: root
   password: wang998321
+polling:
+  interval: 5000
+
+
