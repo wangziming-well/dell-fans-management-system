@@ -84,7 +84,7 @@ public class IPMI {
     //将服务器风扇调整到手动模式，只有在手动模式下才能调用setFansPWM()
     public void setFansManualMode(){
         String command = "raw 0x30 0x30 0x01 0x00";
-        exec(command);
+        String exec = exec(command);
     }
     //将服务器风扇调整到自动模式
     public void setFansAutoMode(){
@@ -99,7 +99,8 @@ public class IPMI {
 
     public void setFansPWM(int percentage){
         String command =String.format("raw 0x30 0x30 0x02 0xff 0x%s",Integer.toHexString(percentage)) ;
-        exec(command);
+        String exec = exec(command);
+        System.out.println("exec = " + exec);
     }
 
     public boolean isIpmitoolAvailable() {
@@ -116,10 +117,10 @@ public class IPMI {
     /**
      * 用于检测远程访问是否可用
      */
-    public void checkRemoteAccess(){
+    public boolean checkRemoteAccess(){
         String command = "bmc info";
-        String s = exec(command);
-        System.out.println(s);
+        String result = exec(command);
+        return result.contains("IPMI");
     }
 
     /**
