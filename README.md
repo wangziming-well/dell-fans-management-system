@@ -2,7 +2,7 @@
 
 
 
-## ipmi
+## ipmiService
 项目通过ipmi与服务器通信，需要保证:
 * 机器的idrac和当前电脑在同一个网段中
 * 服务器开启了ipmi (服务器idrac => 网络 => IPMI)

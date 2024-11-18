@@ -1,6 +1,7 @@
 package com.wzm.fans.api;
 
 import com.wzm.fans.properties.IdracProperties;
+import com.wzm.fans.util.ReflectUtils;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,8 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilderFactory;
 import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
@@ -19,8 +22,11 @@ import java.time.Duration;
 @Configuration
 public class RedfishApiConfiguration {
 
-    @Autowired
-    IdracProperties idracProperties;
+    private final IdracProperties idracProperties;
+
+    public RedfishApiConfiguration(IdracProperties idracProperties) {
+        this.idracProperties = idracProperties;
+    }
 
 
     public WebClient.Builder webClientBuilder() {
@@ -34,7 +40,7 @@ public class RedfishApiConfiguration {
                     } catch (SSLException e) {
                         throw new RuntimeException("Failed to configure SSL", e);
                     }
-                }).responseTimeout(Duration.ofSeconds(60));
+                }).responseTimeout(Duration.ofSeconds(10));
 
         return WebClient.builder()
                 .codecs(configurer -> configurer.defaultCodecs()
@@ -42,25 +48,25 @@ public class RedfishApiConfiguration {
                 .clientConnector(new ReactorClientHttpConnector(httpClient));
     }
 
-    private <T> T createClient(WebClient webClient, Class<T> clazz) {
-        WebClientAdapter adapter = WebClientAdapter.create(webClient);
-        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
-        return factory.createClient(clazz);
-    }
-
-    private <T> T createOpenApiClient(WebClient.Builder webClientBuilder, String baseUrl, Class<T> apiClass) {
+    @Bean
+    public WebClient redfishWebClient(){
+        WebClient.Builder builder = webClientBuilder();
         String username = idracProperties.getUsername();
         String password = idracProperties.getPassword();
-        webClientBuilder.defaultHeaders(defaultHeaders -> defaultHeaders.setBasicAuth(username,password));
-        WebClient webClient = webClientBuilder.
+        builder.defaultHeaders(defaultHeaders -> defaultHeaders.setBasicAuth(username,password));
+        String host = idracProperties.getHost();
+        String baseUrl = RedfishApi.baseUrl(host);
+        return builder.
                 baseUrl(baseUrl).build();
-        return createClient(webClient, apiClass);
     }
 
     @Bean
-    public RedfishApi redfishApi() {
-        String host = idracProperties.getHost();
-        String baseUrl = String.format("https://%s/redfish/v1",host) ;
-        return createOpenApiClient(webClientBuilder(),baseUrl, RedfishApi.class);
+    public RedfishApi redfishApi(WebClient redfishWebClient) {
+        WebClientAdapter adapter = WebClientAdapter.create(redfishWebClient);
+        HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
+        return factory.createClient(RedfishApi.class);
     }
+
+
+
 }

@@ -1,19 +1,24 @@
-package com.wzm.fans.util;
+package com.wzm.fans.service;
 
+import com.wzm.fans.properties.IdracProperties;
+import com.wzm.fans.util.FileUtils;
+import com.wzm.fans.util.Shell;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class IPMI {
+@Service
+public class IpmiService {
 
-    private static final Log logger = LogFactory.getLog(IPMI.class);
+    private static final Log logger = LogFactory.getLog(IpmiService.class);
 
     private final String workingDictionary;
     @Getter
@@ -26,10 +31,10 @@ public class IPMI {
     @Setter
     private String password;
 
-    public IPMI(String host,String username,String password) {
-        this.host = host;
-        this.username = username;
-        this.password = password;
+    public IpmiService(IdracProperties idracProperties) {
+        this.host = idracProperties.getHost();
+        this.username = idracProperties.getUsername();
+        this.password = idracProperties.getPassword();
         checkRemoteInfo();
         logger.info("初始化IPMI，检查impitool环境");
         if (Shell.IS_WINDOWS) {

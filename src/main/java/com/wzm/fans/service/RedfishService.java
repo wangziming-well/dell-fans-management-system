@@ -1,9 +1,6 @@
 package com.wzm.fans.service;
 
 import com.wzm.fans.api.RedfishApi;
-import com.wzm.fans.api.SessionsRequest;
-import com.wzm.fans.api.SessionsResponse;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -14,14 +11,12 @@ public class RedfishService {
         this.api = api;
     }
 
-    public void login(){
-        SessionsRequest sessionsRequest = new SessionsRequest();
-        sessionsRequest.setUserName("root");
-        sessionsRequest.setPassword("wang998321");
-
-        SessionsResponse sessions = api.sessions(sessionsRequest);
-        System.out.println(sessions);
-
+    /**
+     * 获取并返回cpu温度
+     * @return cpu温度
+     */
+    public double cpuTemp(){
+        return 0;
     }
 
 }

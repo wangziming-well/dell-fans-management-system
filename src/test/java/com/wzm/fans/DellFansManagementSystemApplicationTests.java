@@ -1,6 +1,7 @@
 package com.wzm.fans;
 
 import com.wzm.fans.api.RedfishApi;
+import com.wzm.fans.service.ConfigService;
 import com.wzm.fans.service.RedfishService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,14 +12,11 @@ class DellFansManagementSystemApplicationTests {
 
 
     @Autowired
-    RedfishService service;
-
-    @Autowired
-    RedfishApi api;
+    ConfigService configService;
 
     @Test
     void contextLoads() {
-        String s = api.get();
+        String s = configService.get("idrac.host");
         System.out.println(s);
     }
 
