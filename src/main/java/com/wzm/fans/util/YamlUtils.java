@@ -15,12 +15,12 @@ public class YamlUtils {
     /**
      * 加载 YAML 文件
      */
-    public static YAMLConfiguration loadYaml(String filePath) {
+    public static YAMLConfiguration loadYaml(File file) {
         try {
             Parameters params = new Parameters();
             FileBasedConfigurationBuilder<YAMLConfiguration> builder =
                     new FileBasedConfigurationBuilder<>(YAMLConfiguration.class)
-                            .configure(params.fileBased().setFile(new File(filePath)));
+                            .configure(params.fileBased().setFile(file));
 
             return builder.getConfiguration();
         } catch (ConfigurationException e) {
@@ -31,8 +31,8 @@ public class YamlUtils {
     /**
      * 保存 YAML 文件
      */
-    public static void saveYaml(YAMLConfiguration config, String outputPath) {
-        try (Writer writer = new FileWriter(new File(outputPath))) {
+    public static void saveYaml(YAMLConfiguration config, File file) {
+        try (Writer writer = new FileWriter(file)) {
             config.write(writer);
         } catch (Exception e) {
             throw new RuntimeException(e);

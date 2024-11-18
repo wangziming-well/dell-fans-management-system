@@ -26,7 +26,7 @@ public class Shell {
     private static final String USER_DIR = System.getProperty("user.dir");
     private static final String chineseWindowDefaultCharset = "GBK";
     private static final List<String> winCommandPrefix = List.of("cmd.exe", "/c");
-
+    private static final List<String> linuxCommandPrefix = List.of("/bin/sh", "-c");
     private static final String INPUT_PREFIX = "<<<";
     private static final String NEW_LINES = "\n";
 
@@ -137,7 +137,7 @@ public class Shell {
         List<String> comm = List.of(command);
         if (IS_WINDOWS)
             return Stream.concat(winCommandPrefix.stream(), comm.stream()).toList();
-        return comm;
+        return Stream.concat(linuxCommandPrefix.stream(), comm.stream()).toList();
     }
 
     private static String charset() {

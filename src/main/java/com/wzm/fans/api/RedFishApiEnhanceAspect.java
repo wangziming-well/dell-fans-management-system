@@ -10,14 +10,14 @@ import org.springframework.stereotype.Component;
 @Component
 class RedFishApiEnhanceAspect {
 
-        private final RedfishBaseUrlChanger redfishBaseUrlChanger;
+    private final RedfishBaseUrlChanger redfishBaseUrlChanger;
 
     public RedFishApiEnhanceAspect(RedfishBaseUrlChanger redfishBaseUrlChanger) {
             this.redfishBaseUrlChanger = redfishBaseUrlChanger;
         }
 
         @Before("execution(* com.wzm.fans.api.RedfishApi.changeHost(..))&& args(host)")
-        public void aroundOriginalMethod(String host) throws Throwable {
+        public void aroundOriginalMethod(String host){
             String baseUrl = RedfishApi.baseUrl(host);
             redfishBaseUrlChanger.changeBaseUrl(baseUrl);
     }

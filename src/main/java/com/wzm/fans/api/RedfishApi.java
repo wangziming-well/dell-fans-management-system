@@ -8,8 +8,8 @@ import org.springframework.web.service.annotation.HttpExchange;
 @HttpExchange
 public interface RedfishApi {
 
-    @GetExchange("/Chassis/System.Embedded.1")
-    String get();
+    @GetExchange("/Chassis/System.Embedded.1/Thermal")
+    ThermalResponse thermal();
 
     @GetExchange
     String test();

@@ -1,19 +1,14 @@
 package com.wzm.fans.api;
 
-import com.wzm.fans.properties.IdracProperties;
-import com.wzm.fans.util.ReflectUtils;
+import com.wzm.fans.util.ConfigUtils;
 import io.netty.handler.ssl.SslContextBuilder;
 import io.netty.handler.ssl.util.InsecureTrustManagerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilderFactory;
 import reactor.netty.http.client.HttpClient;
 
 import javax.net.ssl.SSLException;
@@ -21,13 +16,6 @@ import java.time.Duration;
 
 @Configuration
 public class RedfishApiConfiguration {
-
-    private final IdracProperties idracProperties;
-
-    public RedfishApiConfiguration(IdracProperties idracProperties) {
-        this.idracProperties = idracProperties;
-    }
-
 
     public WebClient.Builder webClientBuilder() {
         //忽略SSL证书验证
@@ -51,10 +39,11 @@ public class RedfishApiConfiguration {
     @Bean
     public WebClient redfishWebClient(){
         WebClient.Builder builder = webClientBuilder();
-        String username = idracProperties.getUsername();
-        String password = idracProperties.getPassword();
+        String host = ConfigUtils.get("idrac.host");
+        String username = ConfigUtils.get("idrac.username");
+        String password = ConfigUtils.get("idrac.password");
+
         builder.defaultHeaders(defaultHeaders -> defaultHeaders.setBasicAuth(username,password));
-        String host = idracProperties.getHost();
         String baseUrl = RedfishApi.baseUrl(host);
         return builder.
                 baseUrl(baseUrl).build();
@@ -66,7 +55,4 @@ public class RedfishApiConfiguration {
         HttpServiceProxyFactory factory = HttpServiceProxyFactory.builderFor(adapter).build();
         return factory.createClient(RedfishApi.class);
     }
-
-
-
 }

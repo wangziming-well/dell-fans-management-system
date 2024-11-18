@@ -1,6 +1,6 @@
 package com.wzm.fans.service;
 
-import com.wzm.fans.properties.IdracProperties;
+import com.wzm.fans.util.ConfigUtils;
 import com.wzm.fans.util.FileUtils;
 import com.wzm.fans.util.Shell;
 import lombok.Getter;
@@ -21,20 +21,9 @@ public class IpmiService {
     private static final Log logger = LogFactory.getLog(IpmiService.class);
 
     private final String workingDictionary;
-    @Getter
-    @Setter
-    private String host;
-    @Getter
-    @Setter
-    private String username;
-    @Getter
-    @Setter
-    private String password;
 
-    public IpmiService(IdracProperties idracProperties) {
-        this.host = idracProperties.getHost();
-        this.username = idracProperties.getUsername();
-        this.password = idracProperties.getPassword();
+
+    public IpmiService() {
         checkRemoteInfo();
         logger.info("初始化IPMI，检查impitool环境");
         if (Shell.IS_WINDOWS) {
@@ -54,9 +43,9 @@ public class IpmiService {
     }
 
     private void checkRemoteInfo(){
-        Assert.hasText(host,"ipmi访问域名不能为空");
-        Assert.hasText(host,"ipmi访问用户名不能为空");
-        Assert.hasText(host,"ipmi访问密码不能为空");
+        Assert.hasText(ConfigUtils.get("idrac.host"),"ipmi访问域名不能为空");
+        Assert.hasText(ConfigUtils.get("idrac.username"),"ipmi访问用户名不能为空");
+        Assert.hasText(ConfigUtils.get("idrac.password"),"ipmi访问密码不能为空");
     }
 
     private void unzipWinIpmitool() {
@@ -105,7 +94,6 @@ public class IpmiService {
     public void setFansPWM(int percentage){
         String command =String.format("raw 0x30 0x30 0x02 0xff 0x%s",Integer.toHexString(percentage)) ;
         String exec = exec(command);
-        System.out.println("exec = " + exec);
     }
 
     public boolean isIpmitoolAvailable() {
@@ -137,7 +125,7 @@ public class IpmiService {
     private String exec(String command) {
         checkRemoteInfo();
         command = String.format("ipmitool -I lanplus -H %s -U %s -P %s %s",
-                        this.host, this.username, this.password, command);
+                ConfigUtils.get("idrac.host"), ConfigUtils.get("idrac.username"), ConfigUtils.get("idrac.password"), command);
         return Shell.execStr(workingDictionary, command);
     }
 

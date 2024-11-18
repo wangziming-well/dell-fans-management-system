@@ -21,18 +21,23 @@ public class ScheduleService {
 
     public ScheduleService(RedfishService redfishService, IpmiService ipmiService) {
         this.ipmiService = ipmiService;
-        HashMap<Double, Integer> cupPoints = new HashMap<>();
+        HashMap<Integer, Integer> cupPoints = new HashMap<>();
+        cupPoints.put(0,10);
+        cupPoints.put(40,10);
+        cupPoints.put(65,30);
+        cupPoints.put(80,40);
+        cupPoints.put(100,100);
         this.cupFanCurve = new FanSpeedCurve(cupPoints);
         this.redfishService = redfishService;
     }
 
 
     // 每隔 polling.interval/1000 秒执行一次轮询任务
-    @Scheduled(fixedRateString = "${polling.interval}")
+    @Scheduled(fixedRate = 5000)
     public void pollApi() {
-        double temp = redfishService.cpuTemp();
+        int temp = redfishService.cpuTemp();
         int fanPwm = cupFanCurve.getFanSpeed(temp);
-        logger.info(String.format("当前cpu温度:%f，调整转速:%d",temp,fanPwm));
+        logger.info(String.format("当前cpu温度:%d，调整转速:%d",temp,fanPwm));
         ipmiService.setFansPWM(fanPwm);
     }
 }
