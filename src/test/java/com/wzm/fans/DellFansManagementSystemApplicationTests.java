@@ -20,8 +20,6 @@ class DellFansManagementSystemApplicationTests {
 
     @Test
     void contextLoads() {
-        double v = redfishService.cpuTemp();
-        System.out.println(v);
     }
 
 }
