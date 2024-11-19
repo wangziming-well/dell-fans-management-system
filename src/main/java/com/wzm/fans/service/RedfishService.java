@@ -8,6 +8,7 @@ import java.util.List;
 
 @Service
 public class RedfishService {
+
     private final RedfishApi api;
 
     public RedfishService(RedfishApi api) {
@@ -23,8 +24,7 @@ public class RedfishService {
         List<ThermalResponse.Temperature> temperatures = thermalResponse.getTemperatures();
         int maxTemp = Integer.MIN_VALUE;
 
-        for (int i = 0; i < temperatures.size(); i++) {
-            ThermalResponse.Temperature temperature = temperatures.get(i);
+        for (ThermalResponse.Temperature temperature : temperatures) {
             String name = temperature.getName();
             Integer temp = temperature.getReadingCelsius();
             if (name.contains("CPU"))

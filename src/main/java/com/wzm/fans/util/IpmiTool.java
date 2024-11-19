@@ -1,29 +1,22 @@
-package com.wzm.fans.service;
+package com.wzm.fans.util;
 
-import com.wzm.fans.util.ConfigUtils;
-import com.wzm.fans.util.FileUtils;
-import com.wzm.fans.util.Shell;
-import lombok.Getter;
-import lombok.Setter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-@Service
-public class IpmiService {
 
-    private static final Log logger = LogFactory.getLog(IpmiService.class);
+public class IpmiTool {
 
-    private final String workingDictionary;
+    private static final Log logger = LogFactory.getLog(IpmiTool.class);
 
+    private static final String workingDictionary;
 
-    public IpmiService() {
+    static {
         checkRemoteInfo();
         logger.info("初始化IPMI，检查impitool环境");
         if (Shell.IS_WINDOWS) {
@@ -37,18 +30,23 @@ public class IpmiService {
 
         if (isIpmitoolAvailable()) {
             logger.info("初始化IPMI成功");
+            setFansManualMode();
+            logger.info("将风扇控制调整到手动模式");
         } else {
             logger.warn("ipmitool不可用，请先安装");
         }
     }
 
-    private void checkRemoteInfo(){
+
+
+
+    private static void checkRemoteInfo(){
         Assert.hasText(ConfigUtils.get("idrac.host"),"ipmi访问域名不能为空");
         Assert.hasText(ConfigUtils.get("idrac.username"),"ipmi访问用户名不能为空");
         Assert.hasText(ConfigUtils.get("idrac.password"),"ipmi访问密码不能为空");
     }
 
-    private void unzipWinIpmitool() {
+    private static void unzipWinIpmitool() {
         if (hasIpmitoolExe()) {
             logger.info(workingDictionary + " 文件夹中已经存在impitool.exe,无需重复复制");
             return;
@@ -64,11 +62,12 @@ public class IpmiService {
         }
     }
 
-    private boolean hasIpmitoolExe() {
+    private static boolean hasIpmitoolExe() {
         File workingDic = new File(workingDictionary);
         if (!workingDic.exists())
             return false;
         File[] files = workingDic.listFiles();
+        assert files != null;
         for (File file : files) {
             if (file.getName().contains("ipmitool.exe"))
                 return true;
@@ -76,12 +75,12 @@ public class IpmiService {
         return false;
     }
     //将服务器风扇调整到手动模式，只有在手动模式下才能调用setFansPWM()
-    public void setFansManualMode(){
+    public static void setFansManualMode(){
         String command = "raw 0x30 0x30 0x01 0x00";
-        String exec = exec(command);
+        exec(command);
     }
     //将服务器风扇调整到自动模式
-    public void setFansAutoMode(){
+    public static void setFansAutoMode(){
         String command = "raw 0x30 0x30 0x01 0x01";
         exec(command);
     }
@@ -91,12 +90,12 @@ public class IpmiService {
      * @param percentage 风扇转速的百分比，传10则调整风扇转速到10%
      */
 
-    public void setFansPWM(int percentage){
+    public static void setFansPWM(int percentage){
         String command =String.format("raw 0x30 0x30 0x02 0xff 0x%s",Integer.toHexString(percentage)) ;
-        String exec = exec(command);
+        exec(command);
     }
 
-    public boolean isIpmitoolAvailable() {
+    public static boolean isIpmitoolAvailable() {
         try {
             String s = Shell.execStr(workingDictionary, "ipmitool -V");
             return s.startsWith("ipmitool version");
@@ -110,7 +109,7 @@ public class IpmiService {
     /**
      * 用于检测远程访问是否可用
      */
-    public boolean checkRemoteAccess(){
+    public static boolean checkRemoteAccess(){
         String command = "bmc info";
         String result = exec(command);
         return result.contains("IPMI");
@@ -122,7 +121,7 @@ public class IpmiService {
      * @return 命令的结果
      */
 
-    private String exec(String command) {
+    private static String exec(String command) {
         checkRemoteInfo();
         command = String.format("ipmitool -I lanplus -H %s -U %s -P %s %s",
                 ConfigUtils.get("idrac.host"), ConfigUtils.get("idrac.username"), ConfigUtils.get("idrac.password"), command);

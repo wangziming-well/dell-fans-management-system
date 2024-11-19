@@ -2,3 +2,13 @@ idrac:
   host: 192.168.2.98
   username: root
   password: wang998321
+curve-points: # 温度-转速 曲线
+  '0': 10
+  '40': 10
+  '65': 30
+  '80': 40
+  '100': 100
+app:
+  showdown:
+    auto-mode: true #程序退出时，切换到自动模式
+    fans-speed: 40 # 如果不切换到自动模式，可以指定一个较高的转速

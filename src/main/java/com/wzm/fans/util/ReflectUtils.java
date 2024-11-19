@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 
 public class ReflectUtils {
 
-    public static <T,R>  void setField(Object target, Class<T> clazz, String fieldName, Object fieldValue) {
+    public static <T>  void setField(Object target, Class<T> clazz, String fieldName, Object fieldValue) {
         try {
             Field field = clazz.getDeclaredField(fieldName);
             field.setAccessible(true);

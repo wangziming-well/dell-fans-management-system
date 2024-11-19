@@ -95,12 +95,10 @@ public class Shell {
         } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
         }
-
-
     }
 
     //处理交互命令
-    private static void dealInteractive(InputStream inputStream, OutputStream outputStream, List<MatchEntry> matches, Consumer<String> outputConsumer) throws UnsupportedEncodingException {
+    private static void dealInteractive(InputStream inputStream, OutputStream outputStream, List<MatchEntry> matches, Consumer<String> outputConsumer) {
         IOPair ioPair = getIoPair(inputStream, outputStream);
         Expect4j expect = new Expect4j(ioPair);
         expect.setDefaultTimeout(5 * 60 * 1000); //设置超时时间
