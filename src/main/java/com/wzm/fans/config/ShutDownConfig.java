@@ -21,10 +21,11 @@ public class ShutDownConfig {
             int fanSpeed = ConfigUtils.getInt("app.showdown.fans-speed");
             if (autoMode){
                 IpmiTool.setFansAutoMode();
-                logger.info("程序退出,服务器风扇设置为自动模式");
+                System.out.println("程序退出,服务器风扇设置为自动模式");
             } else{
                 IpmiTool.setFansPWM(fanSpeed);
-                logger.info("程序退出,服务器风扇转速设置为:" + fanSpeed);
+                System.out.println("程序退出,服务器风扇转速设置为:" + fanSpeed);
+
             }
         }));
     }
