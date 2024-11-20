@@ -16,20 +16,49 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 public class ConfigUtils {
 
     private static final String configLocation = "file:config.yml";
+
     private static final ReadWriteLock lock = new ReentrantReadWriteLock();
     private static final Lock readLock = lock.readLock();
     private static final Lock writeLock = lock.writeLock();
 
     private static final Log logger = LogFactory.getLog(ConfigUtils.class);
 
+    private static volatile Map<String, Object> configMap;
 
-    private static final Map<String, Object> configMap;
+    private static volatile long innerLastModified = 0;
 
     static {
-        File resource = ResourceUtils.getResource(configLocation);
-        logger.info("加载配置文件:" + resource.getAbsolutePath());
-        configMap = YamlUtils.loadYaml(resource);
+        init();
     }
+
+    public static void main(String[] args) {
+
+    }
+
+    /**
+     * 初始化加载配置文件到应用中，并监听配置文件变动
+     */
+    private static void init() {
+        File resource = ResourceUtils.getResource(configLocation);
+        configMap = YamlUtils.loadYaml(resource);
+        logger.info("加载配置文件:" + resource.getAbsolutePath());
+        innerLastModified = resource.lastModified();
+        FileMonitor.watch(resource, (ConfigUtils::configReload));
+    }
+
+    private static void configReload(File file) {
+        writeLock.lock();
+        try {
+            if (innerLastModified == file.lastModified()){
+                return; //说明是内部程序的修改
+            }
+            configMap = YamlUtils.loadYaml(file);
+            logger.info("检测到配置文件变动，重新加载:" + file.getAbsolutePath());
+        } finally {
+            writeLock.unlock();
+        }
+    }
+
 
     public static String get(String key) {
         return getInternal(key).toString();
@@ -72,12 +101,13 @@ public class ConfigUtils {
             // 获取最终值并检查是否为 null
             Object result = map.get(split[split.length - 1]);
             if (result == null)
-                throw new RuntimeException("路径不存在");
+                throw new RuntimeException("路径不存在/值为空");
             return result;
         } finally {
             readLock.unlock();
         }
     }
+
 
     public static void set(String key, Object value) {
         writeLock.lock();
@@ -85,6 +115,7 @@ public class ConfigUtils {
             setInternal(key, value);
             File resource = ResourceUtils.getResource(configLocation);
             YamlUtils.saveYaml(ConfigUtils.configMap, resource);
+            innerLastModified = resource.lastModified();
         } finally {
             writeLock.unlock();
         }

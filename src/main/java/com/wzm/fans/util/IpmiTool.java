@@ -37,9 +37,6 @@ public class IpmiTool {
         }
     }
 
-
-
-
     private static void checkRemoteInfo(){
         Assert.hasText(ConfigUtils.get("idrac.host"),"ipmi访问域名不能为空");
         Assert.hasText(ConfigUtils.get("idrac.username"),"ipmi访问用户名不能为空");
@@ -48,7 +45,7 @@ public class IpmiTool {
 
     private static void unzipWinIpmitool() {
         if (hasIpmitoolExe()) {
-            logger.info(workingDictionary + " 文件夹中已经存在impitool.exe,无需重复复制");
+            logger.info(workingDictionary + " 文件夹中已经存在ipmitool.exe,无需重复复制");
             return;
         }
         logger.info("解压缩impitool-win.zip到" + workingDictionary);
