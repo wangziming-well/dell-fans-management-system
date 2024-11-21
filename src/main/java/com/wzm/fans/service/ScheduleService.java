@@ -9,9 +9,9 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClientRequestException;
 
 import java.util.HashMap;
+import java.util.List;
 
 @Service
 public class ScheduleService {
@@ -20,30 +20,26 @@ public class ScheduleService {
 
     private final FanSpeedCurve cupFanCurve;
 
-    private final RedfishService redfishService;
+    private final TemperatureSensorService temperatureSensorService;
 
-
-    public ScheduleService(RedfishService redfishService) {
+    public ScheduleService(TemperatureSensorService temperatureSensorService) {
+        this.temperatureSensorService = temperatureSensorService;
         HashMap<Integer, Integer> cupPoints =ConfigUtils.get("curve-points", new TypeReference<>() {});
-
         this.cupFanCurve = new FanSpeedCurve(cupPoints);
-        this.redfishService = redfishService;
     }
 
-    private volatile int previousFanPWn =-1;
+    private volatile int previousFanPwm =-1;
 
 
     @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
-            boolean ipmitoolAvailable = IpmiTool.isIpmitoolAvailable();
-            System.out.println(ipmitoolAvailable);
-            int temp = redfishService.cpuTemp();
+            int temp = getCpuTemp();
             int fanPwm = cupFanCurve.getFanSpeed(temp);
-            if (previousFanPWn != fanPwm){
+            if (previousFanPwm != fanPwm){
                 //需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
-                previousFanPWn = fanPwm;
+                previousFanPwm = fanPwm;
                 logger.info(String.format("当前cpu温度:%d，调整转速:%d",temp,fanPwm));
             } else{
                 logger.info(String.format("当前cpu温度:%d，无需调整转速",temp));
@@ -53,6 +49,17 @@ public class ScheduleService {
         } catch (Exception e){
             throw new RuntimeException(e);
         }
+    }
 
+    private Integer getCpuTemp(){
+        List<String> sensorNames = temperatureSensorService.getSensorNames();
+        int maxCpuTemp = Integer.MIN_VALUE;
+        for (String sensorName : sensorNames) {
+            if (sensorName.contains("CPU")){
+                int temp = temperatureSensorService.getLeastTemp(sensorName);
+                maxCpuTemp = Math.max(maxCpuTemp, temp);
+            }
+        }
+        return maxCpuTemp;
     }
 }

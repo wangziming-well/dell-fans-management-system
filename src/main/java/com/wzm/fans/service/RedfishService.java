@@ -5,6 +5,8 @@ import com.wzm.fans.api.ThermalResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class RedfishService {
@@ -15,22 +17,13 @@ public class RedfishService {
         this.api = api;
     }
 
-    /**
-     * 获取并返回cpu温度
-     * @return cpu温度
-     */
-    public int cpuTemp(){
+
+    public Map<String,Integer> tempInfo(){
         ThermalResponse thermalResponse = api.thermal();
         List<ThermalResponse.Temperature> temperatures = thermalResponse.getTemperatures();
-        int maxTemp = Integer.MIN_VALUE;
-
-        for (ThermalResponse.Temperature temperature : temperatures) {
-            String name = temperature.getName();
-            Integer temp = temperature.getReadingCelsius();
-            if (name.contains("CPU"))
-                maxTemp = maxTemp < temp ? temp : maxTemp;
-        }
-        return maxTemp;
+        return temperatures.stream().collect(Collectors.
+                toMap(ThermalResponse.Temperature::getName,
+                        ThermalResponse.Temperature::getReadingCelsius));
     }
 
 }

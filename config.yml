@@ -1,7 +1,7 @@
 idrac:
-  host: 192.168.2.2
+  host: 192.168.2.98
   username: root
-  password: 123456
+  password:
 curve-points:
   '0': 10
   '40': 10
