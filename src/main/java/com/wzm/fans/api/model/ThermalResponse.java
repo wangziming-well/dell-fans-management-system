@@ -1,4 +1,4 @@
-package com.wzm.fans.api;
+package com.wzm.fans.api.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

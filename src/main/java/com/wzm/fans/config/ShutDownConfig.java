@@ -12,7 +12,6 @@ public class ShutDownConfig {
 
     private static final Log logger = LogFactory.getLog(ShutDownConfig.class);
 
-
     @PostConstruct
     public void registerShutdownHook() {
         logger.info("注册程序退出回调");

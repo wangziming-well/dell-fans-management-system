@@ -2,11 +2,13 @@ package com.wzm.fans.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wzm.fans.pojo.AppConfig;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 
 import java.io.File;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -29,10 +31,6 @@ public class ConfigUtils {
 
     static {
         init();
-    }
-
-    public static void main(String[] args) {
-
     }
 
     /**
@@ -59,6 +57,10 @@ public class ConfigUtils {
         }
     }
 
+    public static AppConfig getAll(){
+        System.out.println(configMap);
+        return JacksonUtils.convertTo(configMap, AppConfig.class);
+    }
 
     public static String get(String key) {
         return getInternal(key).toString();
@@ -76,6 +78,14 @@ public class ConfigUtils {
         return Double.parseDouble(get(key));
     }
 
+    public static  Map<String,Object> getMap(String key){
+        return get(key, new TypeReference<>() {});
+    }
+
+    public static Map<String,String> getStringMap(String key){
+        return get(key, new TypeReference<>() {});
+    }
+
     public static <T> T get(String key, TypeReference<T> typeReference) {
         Object internal = getInternal(key);
         return convertObject(internal, typeReference);
@@ -85,7 +95,7 @@ public class ConfigUtils {
         ObjectMapper objectMapper = new ObjectMapper();
         return objectMapper.convertValue(obj, typeReference);
     }
-
+    @SuppressWarnings("unchecked")
     private static Object getInternal(String key) {
         readLock.lock();
         try {
@@ -95,6 +105,7 @@ public class ConfigUtils {
                 Object o = map.get(split[i]);
                 if (!(o instanceof Map))
                     throw new RuntimeException("路径不存在");
+
                 map = (Map<String, Object>) o;
             }
 
@@ -110,9 +121,23 @@ public class ConfigUtils {
 
 
     public static void set(String key, Object value) {
+        modifyConfig(() ->setInternal(key, value));
+    }
+
+    public static void setAll(AppConfig appConfig){
+        modifyConfig(() ->
+                ConfigUtils.configMap =
+                JacksonUtils.convertTo(appConfig, new TypeReference<>() {}) );
+    }
+
+    /**
+     * 修改配置并写到文件，{@code callback} 中有对{@link #configMap} 的修改，执行完{@code callback}后会将修改保存到配置文件
+     * @param callback 对{@link #configMap} 的修改
+     */
+    private static void modifyConfig(Runnable callback){
         writeLock.lock();
         try {
-            setInternal(key, value);
+            callback.run();
             File resource = ResourceUtils.getResource(configLocation);
             YamlUtils.saveYaml(ConfigUtils.configMap, resource);
             innerLastModified = resource.lastModified();
@@ -121,6 +146,7 @@ public class ConfigUtils {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private static void setInternal(String key, Object value) {
         String[] split = key.split("\\.");
         Map<String, Object> map = ConfigUtils.configMap;

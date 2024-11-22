@@ -1,6 +1,7 @@
 package com.wzm.fans.api;
 
 
+import com.wzm.fans.api.model.ThermalResponse;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 

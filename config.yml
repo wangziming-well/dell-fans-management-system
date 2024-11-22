@@ -1,15 +1,20 @@
 idrac:
-  host: 192.168.2.98
+  host: 192.168.2.100
   username: root
-  password:
+  password: wang998321
+shutdown:
+  auto-mode: false
+  fans-speed: 20
 curve-points:
-  '0': 10
-  '40': 10
-  '65': 30
-  '80': 40
-  '100': 100
-app:
-  showdown:
-    auto-mode: false
-    fans-speed: 20
-test: 321
+  default:
+    '0': 10
+    '40': 10
+    '65': 30
+    '80': 40
+    '100': 100
+  CPU1:
+    '0': 10
+    '40': 10
+    '65': 30
+    '80': 40
+    '100': 100

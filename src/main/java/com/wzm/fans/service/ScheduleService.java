@@ -20,18 +20,18 @@ public class ScheduleService {
 
     private final FanSpeedCurve cupFanCurve;
 
-    private final TemperatureSensorService temperatureSensorService;
+    private final SystemMetricsService systemMetricsService;
 
-    public ScheduleService(TemperatureSensorService temperatureSensorService) {
-        this.temperatureSensorService = temperatureSensorService;
-        HashMap<Integer, Integer> cupPoints =ConfigUtils.get("curve-points", new TypeReference<>() {});
+    public ScheduleService(SystemMetricsService systemMetricsService) {
+        this.systemMetricsService = systemMetricsService;
+        HashMap<Integer, Integer> cupPoints =ConfigUtils.get("curve-points.default", new TypeReference<>() {});
         this.cupFanCurve = new FanSpeedCurve(cupPoints);
     }
 
     private volatile int previousFanPwm =-1;
 
 
-    @Scheduled(fixedRate = 5000)
+    //@Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
             int temp = getCpuTemp();
@@ -52,11 +52,11 @@ public class ScheduleService {
     }
 
     private Integer getCpuTemp(){
-        List<String> sensorNames = temperatureSensorService.getSensorNames();
+        List<String> sensorNames = systemMetricsService.getSubItemNames(SystemMetricsService.Metrics.TEMPERATURE);
         int maxCpuTemp = Integer.MIN_VALUE;
         for (String sensorName : sensorNames) {
             if (sensorName.contains("CPU")){
-                int temp = temperatureSensorService.getLeastTemp(sensorName);
+                int temp = systemMetricsService.getLatestMetrics(SystemMetricsService.Metrics.TEMPERATURE,sensorName);
                 maxCpuTemp = Math.max(maxCpuTemp, temp);
             }
         }

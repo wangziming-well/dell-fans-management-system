@@ -1,7 +1,7 @@
 package com.wzm.fans.service;
 
 import com.wzm.fans.api.RedfishApi;
-import com.wzm.fans.api.ThermalResponse;
+import com.wzm.fans.api.model.ThermalResponse;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,4 +26,16 @@ public class RedfishService {
                         ThermalResponse.Temperature::getReadingCelsius));
     }
 
+    public Map<String, Integer> cpuUsageInfo() {
+
+        return null;
+    }
+
+    public Map<String, Integer> powerConsumeInfo() {
+        return null;
+    }
+
+    public Map<String, Integer> fanSpeedInfo() {
+        return null;
+    }
 }
