@@ -16,7 +16,6 @@ public class DellFansManagementSystemApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(DellFansManagementSystemApplication.class, args);
-
     }
 
 }

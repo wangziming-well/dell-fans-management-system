@@ -3,14 +3,12 @@ package com.wzm.fans.controller;
 import com.wzm.fans.pojo.AppConfig;
 import com.wzm.fans.pojo.Response;
 import com.wzm.fans.util.ConfigUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@RestController("/config")
+@RestController
+@RequestMapping("/config")
 public class ConfigController {
     @GetMapping
     public Response<AppConfig> get(){

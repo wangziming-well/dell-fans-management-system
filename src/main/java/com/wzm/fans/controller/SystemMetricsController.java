@@ -5,12 +5,14 @@ import com.wzm.fans.service.SystemMetricsService;
 import org.apache.commons.logging.Log;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
 
-@RestController("/metrics")
+@RestController
+@RequestMapping("/metrics")
 public class SystemMetricsController {
 
     private final SystemMetricsService service;
@@ -28,6 +30,7 @@ public class SystemMetricsController {
     @GetMapping("/temperature/item/{itemName}")
     public Response<Map<Long,Integer>> temperatureInfo(@PathVariable String itemName){
         Map<Long, Integer> result = service.getRecords(SystemMetricsService.Metrics.TEMPERATURE, itemName);
+
         return Response.ok(result);
     }
 

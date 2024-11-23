@@ -28,21 +28,21 @@ public class ScheduleService {
         this.cupFanCurve = new FanSpeedCurve(cupPoints);
     }
 
-    private volatile int previousFanPwm =-1;
 
-
-    //@Scheduled(fixedRate = 5000)
+    private volatile int previousCpuTemp =-1;
+    @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
             int temp = getCpuTemp();
             int fanPwm = cupFanCurve.getFanSpeed(temp);
-            if (previousFanPwm != fanPwm){
-                //需要调整转速
+            if (previousCpuTemp != temp){
+                //可能需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
-                previousFanPwm = fanPwm;
+                previousCpuTemp = temp;
                 logger.info(String.format("当前cpu温度:%d，调整转速:%d",temp,fanPwm));
             } else{
-                logger.info(String.format("当前cpu温度:%d，无需调整转速",temp));
+                if (!ConfigUtils.getBoolean("log.less"))
+                    logger.info(String.format("当前cpu温度:%d，无需调整转速",temp));
             }
         } catch (RedfishRequestException e){
             logger.warn("Redfish连接错误，请检查idrac配置。errorMessage:"+ e.getMessage());

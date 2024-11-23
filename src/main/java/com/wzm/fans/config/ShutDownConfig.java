@@ -16,8 +16,8 @@ public class ShutDownConfig {
     public void registerShutdownHook() {
         logger.info("注册程序退出回调");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            boolean autoMode = ConfigUtils.getBoolean("app.showdown.auto-mode");
-            int fanSpeed = ConfigUtils.getInt("app.showdown.fans-speed");
+            boolean autoMode = ConfigUtils.getBoolean("shutdown.auto-mode");
+            int fanSpeed = ConfigUtils.getInt("shutdown.fans-speed");
             if (autoMode){
                 IpmiTool.setFansAutoMode();
                 System.out.println("程序退出,服务器风扇设置为自动模式");

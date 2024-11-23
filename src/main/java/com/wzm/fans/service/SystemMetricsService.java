@@ -50,16 +50,16 @@ public class SystemMetricsService {
 
     private final MetricsRecorder<Integer> fanSpeedRecorder = new MetricsRecorder<>(3600);
 
-    //@Scheduled(fixedRate = 1000)
+    @Scheduled(fixedRate = 1000)
     public void recordMetrics() {
         Map<String, Integer> tempInfoMap = redfishService.tempInfo();
         Map<String, Integer> cpuUsageInfoMap = redfishService.cpuUsageInfo();
         Map<String, Integer> powerConsumeInfoMap = redfishService.powerConsumeInfo();
         Map<String, Integer> fanSpeedInfoMap = redfishService.fanSpeedInfo();
         temperatureRecorder.records(tempInfoMap);
-        cpuUsageRecorder.records(cpuUsageInfoMap);
-        powerConsumeRecorder.records(powerConsumeInfoMap);
-        fanSpeedRecorder.records(fanSpeedInfoMap);
+//        cpuUsageRecorder.records(cpuUsageInfoMap);
+//        powerConsumeRecorder.records(powerConsumeInfoMap);
+//        fanSpeedRecorder.records(fanSpeedInfoMap);
     }
 
     public List<String> getSubItemNames(Metrics metrics) {
