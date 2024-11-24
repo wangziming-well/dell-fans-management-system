@@ -26,7 +26,7 @@ public class RedfishService {
         List<ThermalResponse.Temperature> temperatures = thermalResponse.getTemperatures();
         Assert.notNull(temperatures,"temperatures为");
 
-        return temperatures.stream().filter(Objects::nonNull).collect(Collectors.
+        return temperatures.stream().filter(temperature -> temperature != null && temperature.getName() != null).collect(Collectors.
                 toMap(ThermalResponse.Temperature::getName,
                         ThermalResponse.Temperature::getReadingCelsius));
     }

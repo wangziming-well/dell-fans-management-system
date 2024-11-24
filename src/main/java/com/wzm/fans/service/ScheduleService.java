@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.BinaryOperator;
 
 @Service
 public class ScheduleService {
@@ -33,16 +36,22 @@ public class ScheduleService {
     @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
-            int temp = getCpuTemp();
+            Map<String, Integer> cpuTemps = getCpuTemps();
+            Integer temp = cpuTemps.values().stream()
+                    .reduce(BinaryOperator.maxBy(Integer::compareTo)).get();
             int fanPwm = cupFanCurve.getFanSpeed(temp);
+            StringBuilder sb = new StringBuilder("当前温度:");
+            cpuTemps.entrySet().stream().forEach(entry-> sb.append(String.format("[%s:%d] ",entry.getKey(),entry.getValue())));
+
             if (previousCpuTemp != temp){
                 //可能需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
                 previousCpuTemp = temp;
-                logger.info(String.format("当前cpu温度:%d，调整转速:%d",temp,fanPwm));
+                sb.append(String.format("调整转速:%d",fanPwm));
+                logger.info(sb);
             } else{
                 if (!ConfigUtils.getBoolean("log.less"))
-                    logger.info(String.format("当前cpu温度:%d，无需调整转速",temp));
+                    logger.info(sb);
             }
         } catch (RedfishRequestException e){
             logger.warn("Redfish连接错误，请检查idrac配置。errorMessage:"+ e.getMessage());
@@ -51,15 +60,15 @@ public class ScheduleService {
         }
     }
 
-    private Integer getCpuTemp(){
+    private Map<String,Integer> getCpuTemps(){
         List<String> sensorNames = systemMetricsService.getSubItemNames(SystemMetricsService.Metrics.TEMPERATURE);
-        int maxCpuTemp = Integer.MIN_VALUE;
+        HashMap<String, Integer> result = new HashMap<>();
         for (String sensorName : sensorNames) {
             if (sensorName.contains("CPU")){
                 int temp = systemMetricsService.getLatestMetrics(SystemMetricsService.Metrics.TEMPERATURE,sensorName);
-                maxCpuTemp = Math.max(maxCpuTemp, temp);
+                result.put(sensorName,temp);
             }
         }
-        return maxCpuTemp;
+        return result;
     }
 }
