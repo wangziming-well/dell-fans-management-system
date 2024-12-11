@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.BinaryOperator;
 
 @Service
@@ -36,17 +35,17 @@ public class ScheduleService {
     @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
-            Map<String, Integer> cpuTemps = getCpuTemps();
-            Integer temp = cpuTemps.values().stream()
+            Map<String, Integer> sensorTemps = getSensorTemps();
+            Integer currMaxTemp = sensorTemps.values().stream()
                     .reduce(BinaryOperator.maxBy(Integer::compareTo)).get();
-            int fanPwm = cupFanCurve.getFanSpeed(temp);
+            int fanPwm = cupFanCurve.getFanSpeed(currMaxTemp);
             StringBuilder sb = new StringBuilder("当前温度:");
-            cpuTemps.entrySet().stream().forEach(entry-> sb.append(String.format("[%s:%d] ",entry.getKey(),entry.getValue())));
-
-            if (previousCpuTemp != temp){
+            sensorTemps.entrySet().stream().forEach(entry-> sb.append(String.format("[%s:%d] ",entry.getKey(),entry.getValue())));
+            sb.append(String.format("[%s:%d] ","Max",currMaxTemp));
+            if (previousCpuTemp != currMaxTemp){
                 //可能需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
-                previousCpuTemp = temp;
+                previousCpuTemp = currMaxTemp;
                 sb.append(String.format("调整转速:%d",fanPwm));
                 logger.info(sb);
             } else{
@@ -60,14 +59,14 @@ public class ScheduleService {
         }
     }
 
-    private Map<String,Integer> getCpuTemps(){
+    private Map<String,Integer> getSensorTemps(){
         List<String> sensorNames = systemMetricsService.getSubItemNames(SystemMetricsService.Metrics.TEMPERATURE);
         HashMap<String, Integer> result = new HashMap<>();
         for (String sensorName : sensorNames) {
-            if (sensorName.contains("CPU")){
-                int temp = systemMetricsService.getLatestMetrics(SystemMetricsService.Metrics.TEMPERATURE,sensorName);
-                result.put(sensorName,temp);
-            }
+            int temp = systemMetricsService.getLatestMetrics(SystemMetricsService.Metrics.TEMPERATURE,
+                    sensorName);
+            result.put(sensorName.replace("System Board","").replace("Temp","").trim(),temp);
+
         }
         return result;
     }

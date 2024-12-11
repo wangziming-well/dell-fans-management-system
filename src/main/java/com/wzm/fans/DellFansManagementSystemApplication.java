@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 //TODO Ipmitool 检测连接是否成功
 //TODO 修改idrac.host后，自动刷新RedfishClient
 //TODO 重构定时任务
+//TODO 调整日志格式
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableScheduling
