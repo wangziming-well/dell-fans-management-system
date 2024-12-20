@@ -42,7 +42,7 @@ public class SystemMetricsService {
 
     private final RedfishService redfishService;
 
-    private final MetricsRecorder<Integer>  temperatureRecorder = new MetricsRecorder<>(3600);
+    private final MetricsRecorder<Integer>  temperatureRecorder = new MetricsRecorder<>(60*60*24*7);
 
     private final MetricsRecorder<Integer> cpuUsageRecorder = new MetricsRecorder<>(3600);
 
@@ -68,6 +68,10 @@ public class SystemMetricsService {
 
     public Map<Long, Integer> getRecords(Metrics metrics, String subItemName) {
         return getRecorder(metrics).getRecords(subItemName);
+    }
+
+    public Map<Long, List<Integer>> getAllRecords(Metrics metrics){
+        return getRecorder(metrics).getAllRecords();
     }
 
     public Integer getLatestMetrics(Metrics metrics, String subItemName) {

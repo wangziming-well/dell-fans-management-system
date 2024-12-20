@@ -1,9 +1,6 @@
 package com.wzm.fans.service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Stream;
@@ -64,6 +61,15 @@ public class MetricsRecorder<T> {
                 map.put(timestamp, tempList[index]);
         });
         return map;
+    }
+
+    public Map<Long, List<T>> getAllRecords(){
+        HashMap<Long, List<T>> result = new HashMap<>();
+        metricsRecordMap.forEach((key, value) -> {
+            List<T> list = Arrays.stream(value).toList();
+            result.put(key, list);
+        });
+        return result;
     }
 
     public T getLeastMetrics(String subItemName) {
