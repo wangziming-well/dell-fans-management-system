@@ -2,13 +2,13 @@ package com.wzm.fans.pojo;
 
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class AllDataRecordsResponse {
 
-    private String name;
-
     private long timestamp;
 
-    private int value;
+    private List<Integer> valueList;
 
 }

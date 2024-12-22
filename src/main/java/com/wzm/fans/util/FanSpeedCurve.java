@@ -6,21 +6,21 @@ import java.util.*;
 public class FanSpeedCurve {
 
     // 存储温度-风扇转速的映射关系
-    private TreeMap<Integer, Integer> pointMap;
+    private TreeMap<Double, Double> pointMap;
 
-    public FanSpeedCurve(Map<Integer,Integer> points) {
+    public FanSpeedCurve(Map<Double, Double> points) {
         this.pointMap = new TreeMap<>(points); // 使用 TreeMap 自动按温度排序
     }
 
     // 根据温度获取风扇转速
-    public int getFanSpeed(int temperature) {
+    public double getFanSpeed(double temperature) {
         if (pointMap.isEmpty()) {
             throw new IllegalStateException("No data points available.");
         }
 
         // 查找两个邻近点，并通过线性插值计算风扇转速
-        Map.Entry<Integer, Integer> lowerEntry = pointMap.lowerEntry(temperature);
-        Map.Entry<Integer, Integer> upperEntry = pointMap.higherEntry(temperature);
+        Map.Entry<Double, Double> lowerEntry = pointMap.lowerEntry(temperature);
+        Map.Entry<Double, Double> upperEntry = pointMap.higherEntry(temperature);
 
         if (lowerEntry == null || upperEntry == null) {
             throw new IllegalArgumentException("Temperature out of bounds.");
@@ -37,11 +37,11 @@ public class FanSpeedCurve {
         return (int) result ;
     }
 
-    public Map<Integer,Integer> getPoints(){
+    public Map<Double, Double> getPoints(){
         return  Collections.unmodifiableMap(this.pointMap);
     }
 
-    public void updateCurve(Map<Integer,Integer> points){
+    public void updateCurve(Map<Double, Double> points){
         this.pointMap = new TreeMap<>(points);
     }
 

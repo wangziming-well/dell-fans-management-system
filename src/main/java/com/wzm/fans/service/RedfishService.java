@@ -27,7 +27,7 @@ public class RedfishService {
         Assert.notNull(temperatures,"temperatures为");
 
         return temperatures.stream().filter(temperature -> temperature != null && temperature.getName() != null).collect(Collectors.
-                toMap(ThermalResponse.Temperature::getName,
+                toMap(temperature -> temperature.getName().replace("System Board","").replace("Temp","").trim(),
                         ThermalResponse.Temperature::getReadingCelsius));
     }
 

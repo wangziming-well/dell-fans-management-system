@@ -1,9 +1,13 @@
 package com.wzm.fans.service;
 
+import com.wzm.fans.pojo.DataItem;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.stream.Collectors;
 
 /**
  * 监控服务器各项指标的服务，通过{@link #recordMetrics()} 方法每秒记录服务器指标数据并保存，以提供给其他服务使用
@@ -11,71 +15,46 @@ import java.util.*;
 @Service
 public class SystemMetricsService {
 
-    public SystemMetricsService(RedfishService redfishService) {
-        this.redfishService = redfishService;
-    }
-
-    public enum Metrics{
-        TEMPERATURE,
-        CPU_USAGE,
-        POWER_CONSUME,
-        FAN_SPEED
-    }
-
-    private MetricsRecorder<Integer> getRecorder(Metrics metrics){
-        switch (metrics){
-            case TEMPERATURE ->{
-                return this.temperatureRecorder;
-            }
-            case CPU_USAGE -> {
-                return this.cpuUsageRecorder;
-            }
-            case POWER_CONSUME ->{
-                return this.powerConsumeRecorder;
-            }
-            case FAN_SPEED -> {
-                return this.fanSpeedRecorder;
-            }
-            default -> throw new IllegalArgumentException("非法枚举" +metrics );
-        }
-    }
+    private final DataRecorder dataRecorder;
 
     private final RedfishService redfishService;
 
-    private final MetricsRecorder<Integer>  temperatureRecorder = new MetricsRecorder<>(60*60*24*7);
+    public SystemMetricsService(RedfishService redfishService) {
+        this.redfishService = redfishService;
+        this.dataRecorder = initDataRecorder();
+    }
 
-    private final MetricsRecorder<Integer> cpuUsageRecorder = new MetricsRecorder<>(3600);
+    public DataRecorder initDataRecorder(){
+        ScheduledExecutorService scheduledExecutorService = Executors.newScheduledThreadPool(1);
+        ArrayList<DataRecorder.StorageTierStrategy> storageTierStrategies = new ArrayList<>();
+        storageTierStrategies.add(new DataRecorder.StorageTierStrategy(1,60));
+        storageTierStrategies.add(new DataRecorder.StorageTierStrategy(5,600));
+        storageTierStrategies.add(new DataRecorder.StorageTierStrategy(30,3600));
 
-    private final MetricsRecorder<Integer> powerConsumeRecorder = new MetricsRecorder<>(3600);
+        DataRecorder dataRecorder = new DataRecorder(scheduledExecutorService, this::dataRequest,storageTierStrategies );
+        dataRecorder.start();
+        return dataRecorder;
+    }
 
-    private final MetricsRecorder<Integer> fanSpeedRecorder = new MetricsRecorder<>(3600);
-
-    @Scheduled(fixedRate = 1000)
-    public void recordMetrics() {
+    public Map<String, Double> dataRequest() {
         Map<String, Integer> tempInfoMap = redfishService.tempInfo();
-        Map<String, Integer> cpuUsageInfoMap = redfishService.cpuUsageInfo();
-        Map<String, Integer> powerConsumeInfoMap = redfishService.powerConsumeInfo();
-        Map<String, Integer> fanSpeedInfoMap = redfishService.fanSpeedInfo();
-        temperatureRecorder.records(tempInfoMap);
-//        cpuUsageRecorder.records(cpuUsageInfoMap);
-//        powerConsumeRecorder.records(powerConsumeInfoMap);
-//        fanSpeedRecorder.records(fanSpeedInfoMap);
+        return tempInfoMap.entrySet().stream()
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        entry -> entry.getValue().doubleValue()
+                ));
     }
 
-    public List<String> getSubItemNames(Metrics metrics) {
-        return getRecorder(metrics).getSubItemNames();
+    public List<DataItem<Double>> getData(int tier){
+        return this.dataRecorder.getData(tier);
     }
 
-    public Map<Long, Integer> getRecords(Metrics metrics, String subItemName) {
-        return getRecorder(metrics).getRecords(subItemName);
+    public List<DataItem<Double>> getLatest(){
+        return this.dataRecorder.getLatest();
     }
 
-    public Map<Long, List<Integer>> getAllRecords(Metrics metrics){
-        return getRecorder(metrics).getAllRecords();
-    }
 
-    public Integer getLatestMetrics(Metrics metrics, String subItemName) {
-        return getRecorder(metrics).getLeastMetrics(subItemName);
+    public List<String> getKeyNames() {
+        return this.dataRecorder.getKeys();
     }
-
 }
