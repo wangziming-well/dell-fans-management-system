@@ -145,7 +145,7 @@ public class DataRecorder {
         ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
         previousDataListItem.forEach(dataItem -> resultMap.merge(dataItem.getName(), dataItem.getValue(), Double::sum));
         for (String key : resultMap.keySet()) {
-            resultMap.compute(key, (k, value) -> value / (double) limit);
+            resultMap.compute(key, (k, value) -> value == null? 0: Math.floor(value /  limit * 100) / 100 );
         }
 
         return resultMap;
