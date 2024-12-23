@@ -71,7 +71,7 @@ public class DataRecorder {
         int tier = storageStrategy.size();
         int[] result = new int[tier];
 
-        int previousInterval = storageStrategy.get(0).interval;
+        int previousInterval = storageStrategy.getFirst().interval;
         for (int i = 1; i < tier; i++) {
             int currentInterval = storageStrategy.get(i).interval;
             result[i] = currentInterval / previousInterval;
@@ -83,18 +83,23 @@ public class DataRecorder {
     private void checkStrategy(List<StorageTierStrategy> storageStrategy) {
         if (storageStrategy.isEmpty())
             throw new IllegalArgumentException("存储层策略为空");
-        StorageTierStrategy prevStrategy = storageStrategy.get(0);
+        StorageTierStrategy prevStrategy = storageStrategy.getFirst();
         for (int i = 1; i < storageStrategy.size(); i++) {
             StorageTierStrategy currStrategy = storageStrategy.get(i);
             if (currStrategy.interval > prevStrategy.expire)
-                throw new IllegalArgumentException("每级的记录间隔必须小于上一集的数据过期时间");
+                throw new IllegalArgumentException("每级的记录间隔必须小于上一级的数据过期时间");
             if (currStrategy.interval % prevStrategy.interval != 0)
                 throw new IllegalArgumentException("每级的记录间隔必须是上一级的整数倍(以秒为单位的数值)");
+            prevStrategy = currStrategy;
         }
     }
 
     public List<DataItem<Double>> getData(int tier){
         return dataStorageList.get(tier - 1).getAll();
+    }
+
+    public Map<Long,List<Double>> getStoreMap(int tier){
+        return dataStorageList.get(tier -1).getStoreMap();
     }
 
     public List<DataItem<Double>> getLatest(){
@@ -140,8 +145,7 @@ public class DataRecorder {
         ConcurrentHashMap<String, Double> resultMap = new ConcurrentHashMap<>();
         previousDataListItem.forEach(dataItem -> resultMap.merge(dataItem.getName(), dataItem.getValue(), Double::sum));
         for (String key : resultMap.keySet()) {
-            Double value = resultMap.get(key);
-            resultMap.put(key, value / (double) limit);
+            resultMap.compute(key, (k, value) -> value / (double) limit);
         }
 
         return resultMap;

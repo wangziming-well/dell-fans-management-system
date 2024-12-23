@@ -44,17 +44,14 @@ public class ScheduleService {
                     .reduce(BinaryOperator.maxBy(Double::compareTo)).get();
             double fanPwm = cupFanCurve.getFanSpeed(currMaxTemp);
             StringBuilder sb = new StringBuilder("当前温度:");
-            sensorTemps.forEach((key, value) -> sb.append(String.format("[%s:%f] ", key, value)));
-            sb.append(String.format("[%s:%f] ","Max",currMaxTemp));
+            sensorTemps.forEach((key, value) -> sb.append(String.format("[%s:%.0f] ", key, value)));
+            sb.append(String.format("[%s:%.0f] ","Max", currMaxTemp));
             if (previousCpuTemp != currMaxTemp){
                 //可能需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
                 previousCpuTemp = currMaxTemp;
-                sb.append(String.format("调整转速:%f",fanPwm));
+                sb.append(String.format("调整转速:%.0f",fanPwm));
                 logger.info(sb);
-            } else{
-                if (!ConfigUtils.getBoolean("log.less"))
-                    logger.info(sb);
             }
         } catch (RedfishRequestException e){
             logger.warn("Redfish连接错误，请检查idrac配置。errorMessage:"+ e.getMessage());

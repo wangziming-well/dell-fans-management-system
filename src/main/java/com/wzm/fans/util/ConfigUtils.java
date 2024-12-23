@@ -8,7 +8,6 @@ import org.apache.commons.logging.LogFactory;
 
 
 import java.io.File;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
@@ -58,7 +57,6 @@ public class ConfigUtils {
     }
 
     public static AppConfig getAll(){
-        System.out.println(configMap);
         return JacksonUtils.convertTo(configMap, AppConfig.class);
     }
 
@@ -86,6 +84,7 @@ public class ConfigUtils {
         return get(key, new TypeReference<>() {});
     }
 
+
     public static <T> T get(String key, TypeReference<T> typeReference) {
         Object internal = getInternal(key);
         return convertObject(internal, typeReference);
@@ -104,7 +103,7 @@ public class ConfigUtils {
             for (int i = 0; i < split.length - 1; i++) {
                 Object o = map.get(split[i]);
                 if (!(o instanceof Map))
-                    throw new RuntimeException("路径不存在");
+                    throw new RuntimeException("路径不存在:" + key);
 
                 map = (Map<String, Object>) o;
             }

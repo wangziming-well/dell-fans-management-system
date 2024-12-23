@@ -18,18 +18,16 @@ public class DataStorage<T> {
         this.expire = expire;
     }
 
-
-
-
-    private final ConcurrentSkipListMap<Long, T[]> storageMap = new ConcurrentSkipListMap<>();
+    private final ConcurrentSkipListMap<Long, List<T>> storageMap = new ConcurrentSkipListMap<>();
 
     private final List<String> keyNames = new CopyOnWriteArrayList<>();
 
     private final int expire ; // 数据过期时间，单位为 s
 
     public void store(Map<String, T> dataMap, long timestamp) {
-        T[] tempList = toMetricsArray(dataMap);
-        storageMap.put(timestamp, tempList);
+        List<T> dataList = toMetricsArray(dataMap);
+        List<T> unmodifiableList = Collections.unmodifiableList(dataList); //作为不可变数组存储
+        storageMap.put(timestamp, unmodifiableList);
         storageMap.headMap(timestamp - expire * 1000L).clear(); //清除过期数据
     }
 
@@ -37,8 +35,8 @@ public class DataStorage<T> {
         int index = indexOf(key);
         var snapshot = new ArrayList<>(storageMap.entrySet()); // 创建快照
         return snapshot.stream()
-                .filter(entry -> index < entry.getValue().length)
-                .map(entry -> new DataItem<>(entry.getKey(), key, entry.getValue()[index]))
+                .filter(entry -> index < entry.getValue().size())
+                .map(entry -> new DataItem<>(entry.getKey(), key, entry.getValue().get(index)))
                 .toList();
     }
 
@@ -47,8 +45,8 @@ public class DataStorage<T> {
         var snapshot = new ArrayList<>(storageMap.entrySet()); // 创建快照
         return snapshot.stream()
                 .skip(snapshot.size() - limit)
-                .filter(entry -> index < entry.getValue().length)
-                .map(entry -> new DataItem<>(entry.getKey(), key, entry.getValue()[index]))
+                .filter(entry -> index < entry.getValue().size())
+                .map(entry -> new DataItem<>(entry.getKey(), key, entry.getValue().get(index)))
                 .toList();
     }
 
@@ -59,7 +57,7 @@ public class DataStorage<T> {
     public List<DataItem<T>> get(List<String> keys) {
         var snapshot = new ArrayList<>(storageMap.entrySet()); // 创建快照
         return snapshot.stream()
-                .flatMap(entry -> keys.stream().map(key -> new DataItem<>(entry.getKey(), key, entry.getValue()[indexOf(key)])))
+                .flatMap(entry -> keys.stream().map(key -> new DataItem<>(entry.getKey(), key, entry.getValue().get(indexOf(key)))))
                 .toList();
     }
 
@@ -67,7 +65,7 @@ public class DataStorage<T> {
         var snapshot = new ArrayList<>(storageMap.entrySet()); // 创建快照
         return snapshot.stream()
                 .skip( snapshot.size() < limit? 0 : snapshot.size() - limit)
-                .flatMap(entry -> keys.stream().map(key -> new DataItem<>(entry.getKey(), key, entry.getValue()[indexOf(key)])))
+                .flatMap(entry -> keys.stream().map(key -> new DataItem<>(entry.getKey(), key, entry.getValue().get(indexOf(key)))))
                 .toList();
     }
 
@@ -78,6 +76,11 @@ public class DataStorage<T> {
     public List<DataItem<T>> getAll(int limit){
         return get(this.keyNames,limit);
     }
+
+    public Map<Long,List<T>> getStoreMap(){
+        return Collections.unmodifiableMap(this.storageMap);
+    }
+
 
 
     /**
@@ -90,7 +93,7 @@ public class DataStorage<T> {
      * @param dataMap 指标的子项名称-子项值 的键值对
      * @return 返回符合 {@link #keyNames} 顺序的子项值列表
      */
-    private T[] toMetricsArray(Map<String, T> dataMap) {
+    private List<T> toMetricsArray(Map<String, T> dataMap) {
         //遍历tempInfoMap的传感器名称，记录新传感器
         synchronized (this) {
             dataMap.keySet().stream().sorted().forEach(key -> {
@@ -99,15 +102,10 @@ public class DataStorage<T> {
             });
         }
         //遍历this.sensorNames,按照顺序根据tempInfoMap信息获取温度列表
-        Stream<T> stream = this.keyNames
-                .stream()
-                .map(dataMap::get);
-        return convertStreamToArray(stream);
+        return this.keyNames.stream()
+                .map(dataMap::get).toList();
     }
 
-    private T[] convertStreamToArray(Stream<T> stream) {
-        return (T[]) stream.toArray(Object[]::new);
-    }
 
     private int indexOf(String key) {
         int index = keyNames.indexOf(key);

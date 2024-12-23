@@ -21,7 +21,7 @@ public class RedfishService {
 
 
     public Map<String,Integer> tempInfo(){
-        ThermalResponse thermalResponse = api.thermal();
+        ThermalResponse thermalResponse = api.thermal();// TODO 异常处理
         Assert.notNull(thermalResponse,"redfish api返回空");
         List<ThermalResponse.Temperature> temperatures = thermalResponse.getTemperatures();
         Assert.notNull(temperatures,"temperatures为");

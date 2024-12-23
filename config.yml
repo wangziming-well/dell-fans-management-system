@@ -5,6 +5,16 @@ idrac:
 shutdown:
   auto-mode: false
   fans-speed: 25
+data-tier:
+  - interval: 1s
+    expire: 10m
+  - interval: 1m
+    expire: 6h
+  - interval: 5m
+    expire: 3d
+  - interval: 1h
+    expire: 14d
+
 curve-points:
   default:
     '0': 10
@@ -18,5 +28,3 @@ curve-points:
     '65': 30
     '80': 40
     '100': 100
-log:
-  less: true

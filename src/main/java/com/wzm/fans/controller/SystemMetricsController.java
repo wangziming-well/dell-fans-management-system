@@ -2,7 +2,6 @@ package com.wzm.fans.controller;
 
 import com.wzm.fans.pojo.AllDataRecordsResponse;
 import com.wzm.fans.pojo.DataItem;
-import com.wzm.fans.pojo.DataRecordsResponse;
 import com.wzm.fans.pojo.Response;
 import com.wzm.fans.service.SystemMetricsService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,10 +9,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.IntStream;
 
 @RestController
 @RequestMapping("/metrics")
@@ -26,10 +23,12 @@ public class SystemMetricsController {
     }
 
     @GetMapping("/temperature/all/{tier}")
-    public List<DataItem<Double>> allTemperatureInfo(@PathVariable Integer tier){
-        List<DataItem<Double>> data = service.getData(tier);
+    public List<AllDataRecordsResponse> allTemperatureInfo(@PathVariable Integer tier){
+        Map<Long, List<Double>> storeMap = service.getStoreMap(tier);
 
-        return service.getData(tier);
+        return storeMap.entrySet().stream()
+                .map(entry -> new AllDataRecordsResponse(entry.getKey(),entry.getValue()))
+                .toList();
     }
 
     @GetMapping("/temperature/itemNames")

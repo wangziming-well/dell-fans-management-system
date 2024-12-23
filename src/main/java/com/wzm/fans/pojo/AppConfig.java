@@ -1,8 +1,12 @@
 package com.wzm.fans.pojo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.wzm.fans.util.TimeStringFormatter;
 import lombok.Data;
 
+import java.util.List;
 import java.util.Map;
 
 @Data
@@ -14,6 +18,8 @@ public class AppConfig {
     private Map<String, Map<String, Integer>> curvePoints;
 
     private Shutdown shutdown;
+    @JsonProperty("data-tier")
+    private List<Tier> dataTiers;
 
     @Data
     public static class Idrac {
@@ -29,5 +35,15 @@ public class AppConfig {
 
         @JsonProperty("fans-speed")
         private int fansSpeed;
+    }
+
+    @Data
+    public static class Tier{
+        @JsonDeserialize(using = TimeStringFormatter.Deserializer.class)
+        @JsonSerialize(using = TimeStringFormatter.Serializer.class)
+        private Integer interval;
+        @JsonDeserialize(using = TimeStringFormatter.Deserializer.class)
+        @JsonSerialize(using = TimeStringFormatter.Serializer.class)
+        private Integer expire;
     }
 }
