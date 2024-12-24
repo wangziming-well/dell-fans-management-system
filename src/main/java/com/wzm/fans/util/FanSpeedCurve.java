@@ -13,7 +13,7 @@ public class FanSpeedCurve {
     }
 
     // 根据温度获取风扇转速
-    public double getFanSpeed(double temperature) {
+    public int getFanSpeed(double temperature) {
         if (pointMap.isEmpty()) {
             throw new IllegalStateException("No data points available.");
         }
@@ -28,11 +28,11 @@ public class FanSpeedCurve {
 
         // 如果温度等于某个点的温度，直接返回该点的风扇转速
         if (lowerEntry.getKey() == temperature) {
-            return lowerEntry.getValue();
+            return lowerEntry.getValue().intValue();
         }
 
         // 线性插值
-        double slope = (double) (upperEntry.getValue() - lowerEntry.getValue()) / (upperEntry.getKey() - lowerEntry.getKey());
+        double slope = (upperEntry.getValue() - lowerEntry.getValue()) / (upperEntry.getKey() - lowerEntry.getKey());
         double result = lowerEntry.getValue() + slope * (temperature - lowerEntry.getKey());
         return (int) result ;
     }

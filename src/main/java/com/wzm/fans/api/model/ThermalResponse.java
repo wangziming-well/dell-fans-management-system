@@ -118,12 +118,6 @@ public class ThermalResponse {
         }
 
         @Data
-        public static class RelatedItem {
-            @JsonProperty("@odata.id")
-            private String odataId;
-        }
-
-        @Data
         public static class Status {
             @JsonProperty("Health")
             private String health;

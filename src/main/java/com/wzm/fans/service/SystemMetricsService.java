@@ -11,8 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
-import static com.wzm.fans.service.SystemMetricsService.Category.FAN_SPEED;
-import static com.wzm.fans.service.SystemMetricsService.Category.TEMPERATURE;
+import static com.wzm.fans.service.SystemMetricsService.Category.*;
 
 /**
  * 监控服务器各项指标的服务，通过{@link DataRecorder} 方法分层记录服务器指标数据，以提供给其他服务使用
@@ -22,7 +21,8 @@ public class SystemMetricsService {
 
     public enum Category {
         TEMPERATURE,
-        FAN_SPEED
+        FAN_SPEED,
+        POWER_CONSUMPTION
     }
 
     private final DataRecorder dataRecorder;
@@ -49,10 +49,14 @@ public class SystemMetricsService {
     }
 
     public DataRecorder.DataContainer dataRequest() {
-        RedfishThermalInfo redfishThermalInfo = redfishService.thermalInfo();
         DataRecorder.DataContainer result = new DataRecorder.DataContainer();
+
+        RedfishThermalInfo redfishThermalInfo = redfishService.thermalInfo();
         result.add(TEMPERATURE.name(),redfishThermalInfo.getTemp());
         result.add(FAN_SPEED.name(),redfishThermalInfo.getFanSpeed());
+
+        Map<String, Double> powerMap = redfishService.powerConsumeInfo();
+        result.add(POWER_CONSUMPTION.name(),powerMap);
         return result;
     }
 

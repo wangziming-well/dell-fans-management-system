@@ -3,6 +3,7 @@ idrac:
   username: root
   password: wang998321
 shutdown:
+  operate-fan: true
   auto-mode: false
   fans-speed: 25
 data-tier:

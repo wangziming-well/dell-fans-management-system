@@ -87,8 +87,8 @@ public class IpmiTool {
      * @param percentage 风扇转速的百分比，传10则调整风扇转速到10%
      */
 
-    public static void setFansPWM(double percentage){
-        String command =String.format("raw 0x30 0x30 0x02 0xff 0x%s",Double.toHexString(percentage)) ;
+    public static void setFansPWM(int percentage){
+        String command =String.format("raw 0x30 0x30 0x02 0xff 0x%s",Integer.toHexString(percentage)) ;
         exec(command);
     }
 

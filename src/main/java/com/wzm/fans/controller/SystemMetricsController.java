@@ -47,4 +47,18 @@ public class SystemMetricsController {
     public Response<List<String>>  fanKeyNames(){
         return Response.ok(service.getKeyNames(SystemMetricsService.Category.FAN_SPEED)) ;
     }
+
+
+    @GetMapping("/power/{tier}/data")
+    public List<DataResponse> powerData(@PathVariable Integer tier){
+        Map<Long, List<Double>> storeMap = service.getStoreMap(SystemMetricsService.Category.POWER_CONSUMPTION,tier);
+        return storeMap.entrySet().stream()
+                .map(entry -> new DataResponse(entry.getKey(),entry.getValue()))
+                .toList();
+    }
+
+    @GetMapping("/power/keyNames")
+    public Response<List<String>>  powerKeyNames(){
+        return Response.ok(service.getKeyNames(SystemMetricsService.Category.POWER_CONSUMPTION)) ;
+    }
 }

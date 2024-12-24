@@ -35,6 +35,8 @@ public class AppConfig {
 
         @JsonProperty("fans-speed")
         private int fansSpeed;
+        @JsonProperty("operate-fan")
+        private boolean operateFan;
     }
 
     @Data

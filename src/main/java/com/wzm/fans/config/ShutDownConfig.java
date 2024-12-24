@@ -14,6 +14,10 @@ public class ShutDownConfig {
 
     @PostConstruct
     public void registerShutdownHook() {
+        boolean operateFan = ConfigUtils.getBoolean("shutdown.operate-fan");
+        if (!operateFan)
+            return;
+
         logger.info("注册程序退出回调");
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             boolean autoMode = ConfigUtils.getBoolean("shutdown.auto-mode");

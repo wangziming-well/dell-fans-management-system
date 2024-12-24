@@ -34,6 +34,7 @@ public class ScheduleService {
 
 
     private volatile double previousCpuTemp =-1;
+
     @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
@@ -44,7 +45,7 @@ public class ScheduleService {
                 return;
             Double currMaxTemp = sensorTemps.values().stream()
                     .reduce(BinaryOperator.maxBy(Double::compareTo)).get();
-            double fanPwm = cupFanCurve.getFanSpeed(currMaxTemp);
+            int fanPwm = cupFanCurve.getFanSpeed(currMaxTemp);
             StringBuilder sb = new StringBuilder("当前温度:");
             sensorTemps.forEach((key, value) -> sb.append(String.format("[%s:%.0f] ", key, value)));
             sb.append(String.format("[%s:%.0f] ","Max", currMaxTemp));
@@ -52,7 +53,7 @@ public class ScheduleService {
                 //可能需要调整转速
                 IpmiTool.setFansPWM(fanPwm);
                 previousCpuTemp = currMaxTemp;
-                sb.append(String.format("调整转速:%.0f",fanPwm));
+                sb.append(String.format("调整转速:%d",fanPwm));
                 logger.info(sb);
             }
         } catch (RedfishRequestException e){
