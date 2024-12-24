@@ -5,7 +5,6 @@ import com.wzm.fans.pojo.DataDomainResponse;
 import com.wzm.fans.pojo.Response;
 import com.wzm.fans.util.ConfigUtils;
 import com.wzm.fans.util.DateUtils;
-import org.springframework.util.unit.DataUnit;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,16 +38,14 @@ public class ConfigController {
     private DataDomainResponse calculateDomain( List<AppConfig.Tier> dataTiers,String domainStr ){
         DataDomainResponse response = new DataDomainResponse();
         int domainSeconds = DateUtils.toSecond(domainStr);
-        response.setDomainSeconds(domainSeconds);
-        response.setDomainStr(domainStr);
+        response.setDomain(domainSeconds);
         for (int i = 0; i < dataTiers.size(); i++) {
             AppConfig.Tier tier = dataTiers.get(i);
             Integer expire = tier.getExpire();
             Integer interval = tier.getInterval();
             if (domainSeconds <= expire){
                 response.setTier(i+1);
-                response.setIntervalSeconds(interval);
-                response.setIntervalStr(DateUtils.fromSecond(interval));
+                response.setInterval(interval);
                 return response;
             }
         }

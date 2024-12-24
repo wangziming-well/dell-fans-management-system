@@ -5,14 +5,12 @@ import lombok.Data;
 @Data
 public class DataDomainResponse {
 
-    private int domainSeconds;
+    private int domain; //单位 秒
 
-    private String domainStr;
 
     private int tier;
 
-    private int intervalSeconds;
+    private int interval; //单位 秒
 
-    private String intervalStr;
 
 }

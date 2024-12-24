@@ -82,7 +82,7 @@ public class ThermalResponse {
         private String physicalContext;
 
         @JsonProperty("Reading")
-        private Integer reading;
+        private Double reading;
 
         @JsonProperty("ReadingUnits")
         private String readingUnits;
@@ -214,7 +214,7 @@ public class ThermalResponse {
         private String physicalContext;
 
         @JsonProperty("ReadingCelsius")
-        private Integer readingCelsius;
+        private Double readingCelsius;
 
         @JsonProperty("RelatedItem")
         private List<RelatedItem> relatedItem;

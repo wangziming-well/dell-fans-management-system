@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AllDataRecordsResponse {
+public class DataResponse {
 
     private long timestamp;
 

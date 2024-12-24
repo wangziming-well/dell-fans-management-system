@@ -8,7 +8,7 @@ shutdown:
 data-tier:
   - interval: 1s
     expire: 10m
-  - interval: 1m
+  - interval: 5s
     expire: 6h
   - interval: 5m
     expire: 3d

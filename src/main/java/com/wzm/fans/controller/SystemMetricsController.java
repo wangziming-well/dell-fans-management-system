@@ -1,7 +1,6 @@
 package com.wzm.fans.controller;
 
-import com.wzm.fans.pojo.AllDataRecordsResponse;
-import com.wzm.fans.pojo.DataItem;
+import com.wzm.fans.pojo.DataResponse;
 import com.wzm.fans.pojo.Response;
 import com.wzm.fans.service.SystemMetricsService;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,17 +21,30 @@ public class SystemMetricsController {
         this.service = service;
     }
 
-    @GetMapping("/temperature/all/{tier}")
-    public List<AllDataRecordsResponse> allTemperatureInfo(@PathVariable Integer tier){
-        Map<Long, List<Double>> storeMap = service.getStoreMap(tier);
+    @GetMapping("/temperature/{tier}/data")
+    public List<DataResponse> temperatureData(@PathVariable Integer tier){
+        Map<Long, List<Double>> storeMap = service.getStoreMap(SystemMetricsService.Category.TEMPERATURE,tier);
 
         return storeMap.entrySet().stream()
-                .map(entry -> new AllDataRecordsResponse(entry.getKey(),entry.getValue()))
+                .map(entry -> new DataResponse(entry.getKey(),entry.getValue()))
                 .toList();
     }
 
-    @GetMapping("/temperature/itemNames")
-    public Response<List<String>>  allItemNames(){
-        return Response.ok(service.getKeyNames()) ;
+    @GetMapping("/temperature/keyNames")
+    public Response<List<String>>  temperatureKeyNames(){
+        return Response.ok(service.getKeyNames(SystemMetricsService.Category.TEMPERATURE)) ;
+    }
+
+    @GetMapping("/fan/{tier}/data")
+    public List<DataResponse> fanData(@PathVariable Integer tier){
+        Map<Long, List<Double>> storeMap = service.getStoreMap(SystemMetricsService.Category.FAN_SPEED,tier);
+        return storeMap.entrySet().stream()
+                .map(entry -> new DataResponse(entry.getKey(),entry.getValue()))
+                .toList();
+    }
+
+    @GetMapping("/fan/keyNames")
+    public Response<List<String>>  fanKeyNames(){
+        return Response.ok(service.getKeyNames(SystemMetricsService.Category.FAN_SPEED)) ;
     }
 }

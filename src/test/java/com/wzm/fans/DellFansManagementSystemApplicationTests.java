@@ -21,8 +21,6 @@ class DellFansManagementSystemApplicationTests {
 
     @Test
     void contextLoads() {
-        Map<String, Integer> stringIntegerMap = redfishService.tempInfo();
-        System.out.println(stringIntegerMap);
     }
 
 }

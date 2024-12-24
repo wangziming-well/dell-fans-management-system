@@ -37,8 +37,10 @@ public class ScheduleService {
     @Scheduled(fixedRate = 5000)
     public void pollApi() {
         try{
+            if (!systemMetricsService.isReady())
+                return;
             Map<String, Double> sensorTemps = getSensorTemps();
-            if (sensorTemps.size() <=0)
+            if (sensorTemps.isEmpty())
                 return;
             Double currMaxTemp = sensorTemps.values().stream()
                     .reduce(BinaryOperator.maxBy(Double::compareTo)).get();
@@ -61,7 +63,7 @@ public class ScheduleService {
     }
 
     private Map<String,Double> getSensorTemps(){
-        List<DataItem<Double>> latest = systemMetricsService.getLatest();
+        List<DataItem<Double>> latest = systemMetricsService.getLatest(SystemMetricsService.Category.TEMPERATURE);
         return  latest.stream().collect(Collectors.toMap(DataItem::getName, DataItem::getValue));
     }
 }

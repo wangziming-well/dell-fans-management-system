@@ -2,6 +2,7 @@ package com.wzm.fans.service;
 
 import com.wzm.fans.pojo.DataItem;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.ToString;
 
 import java.util.*;
@@ -13,6 +14,7 @@ import java.util.stream.Stream;
  * 根据时间戳存储数据的内存数据仓库
  * 需要存储：时间戳、和对应的键值数组
  */
+@Data
 public class DataStorage<T> {
     public DataStorage(int expire) {
         this.expire = expire;
