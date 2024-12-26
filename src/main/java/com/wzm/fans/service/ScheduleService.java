@@ -2,6 +2,7 @@ package com.wzm.fans.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.wzm.fans.api.RedfishRequestException;
+import com.wzm.fans.pojo.AppConfig;
 import com.wzm.fans.pojo.DataItem;
 import com.wzm.fans.util.ConfigUtils;
 import com.wzm.fans.util.FanSpeedCurve;
@@ -28,8 +29,21 @@ public class ScheduleService {
 
     public ScheduleService(SystemMetricsService systemMetricsService) {
         this.systemMetricsService = systemMetricsService;
-        HashMap<Double, Double> cupPoints =ConfigUtils.get("curve-points.default", new TypeReference<>() {});
-        this.cupFanCurve = new FanSpeedCurve(cupPoints);
+        List<AppConfig.CurvePoint> curvePoints = ConfigUtils.getAll().getCurvePoints();
+        AppConfig.CurvePoint selectCurvePoint = null;
+        for (int i = 0; i < curvePoints.size(); i++) {
+            AppConfig.CurvePoint curvePoint = curvePoints.get(i);
+            if (curvePoint.getName().equals("MAX")){
+                selectCurvePoint = curvePoint;
+            }
+        }
+        if (selectCurvePoint == null)
+            throw new RuntimeException("不存在MAX配置");
+        Map<Double, Double> resultCurve = selectCurvePoint.getCurve().entrySet().stream()
+                .collect(Collectors.toMap(entry -> Double.parseDouble(entry.getKey()),
+                        entry -> entry.getValue().doubleValue()));
+        this.cupFanCurve = new FanSpeedCurve(resultCurve);
+
     }
 
 

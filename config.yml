@@ -3,29 +3,30 @@ idrac:
   username: root
   password: wang998321
 shutdown:
-  operate-fan: true
   auto-mode: false
   fans-speed: 25
-data-tier:
-  - interval: 1s
-    expire: 10m
-  - interval: 5s
-    expire: 6h
-  - interval: 5m
-    expire: 3d
-  - interval: 1h
-    expire: 14d
-
+  operate-fan: true
 curve-points:
-  default:
+- name: MAX
+  curve:
+    '0': 10
+    '40': 10
+    '65': 30
+    '85': 48
+    '100': 100
+- name: CPU1
+  curve:
     '0': 10
     '40': 10
     '65': 30
     '80': 40
     '100': 100
-  CPU1:
-    '0': 10
-    '40': 10
-    '65': 30
-    '80': 40
-    '100': 100
+data-tier:
+- interval: 1s
+  expire: 10m
+- interval: 5s
+  expire: 6h
+- interval: 5m
+  expire: 3d
+- interval: 1h
+  expire: 14d

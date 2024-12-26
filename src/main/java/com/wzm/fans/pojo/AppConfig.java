@@ -15,11 +15,18 @@ public class AppConfig {
     private Idrac idrac;
 
     @JsonProperty("curve-points")
-    private Map<String, Map<String, Integer>> curvePoints;
+    private List<CurvePoint> curvePoints;
 
     private Shutdown shutdown;
     @JsonProperty("data-tier")
     private List<Tier> dataTiers;
+
+    @Data
+    public static class CurvePoint{
+        private String name;
+        private Map<String,Integer> curve;
+
+    }
 
     @Data
     public static class Idrac {
